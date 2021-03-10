@@ -1,0 +1,109 @@
+---
+title: "CRP-analysis"
+author: "GH"
+date: "26 2 2021"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE, message=FALSE}
+library(regclass)  # if not available, install with install.packages("regclass")
+```
+
+
+
+# Analysis of blood analysis data set
+
+## Read data set
+
+```{r}
+tab1<-read.csv2("data_blood.csv")
+attach(tab1)
+```
+
+## Sum of five subtypes equals white blood cell counts
+
+```{r}
+sum_cells <- NEU + EOS + BASO + LYM + MONO
+
+plot(sum_cells, WBC)
+abline(0,1, lty=3)
+```
+
+## Pairwise correlations
+
+```{r}
+round(cor(cbind(NEU, EOS, BASO, LYM, MONO, WBC)),3)
+```
+## Exact collineartiy
+
+The analysis of the basic regression model will result in the program setting one of the coefficients to NA.
+
+```{r}
+mod <- lm(CRP ~ NEU + EOS + BASO + LYM + MONO + WBC)
+summary(mod)
+```
+
+Next, VIFs are computed using the package `regclass`. The function `VIF` results in an error as there is exact collinearity.
+
+```{r}
+try(VIF(mod))
+```
+## Near collinearity
+
+Now we consider a model with just two variables, `NEU` and `WBC`. 
+First we investigate correlation.
+
+```{r}
+plot(NEU, WBC)
+abline(0,1,lty=3)
+text(0,20, paste("Correlation = ", round(cor(NEU, WBC),3)), adj=0)
+legend("bottomrigh", lty=3, legend="Diagonal")
+```
+
+Now we fit the model and evaluate the VIFs.
+
+```{r}
+mod2 <- lm(CRP ~ NEU + WBC)
+VIF(mod2)
+```
+Evaluate the model:
+
+```{r}
+summary(mod2)
+```
+
+The regression coefficients are quite extreme, but this results from their meaning:
+
+The regression coefficient of `NEU` has the interpretation of the expected difference in `CRP` corresponding to a difference of 1 G/L in `NEU` but keeping `WBC` constant. From the plot above we see that it is sometimes not possible to increase `NEU` by 1 G/L and at the same time holding `WBC` fixed, as `NEU` is a component of `WBC` and cannot exceed `WBC`. Hence the regression coefficient has a problematic interpretation.
+
+Remedy: compute a new variable `WBCnoNEU = WBC - NEU`
+
+```{r}
+WBCnoNEU <- WBC - NEU
+```
+
+Evaluate correlation again:
+
+```{r}
+plot(NEU, WBCnoNEU)
+text(0,6, paste("Correlation = ", round(cor(NEU, WBCnoNEU),3)), adj=0)
+```
+Fit model and evaluate VIFs:
+
+```{r}
+mod3 <- lm(CRP ~ NEU + WBCnoNEU)
+VIF(mod3)
+
+```
+
+Evaluate the model:
+
+```{r}
+summary(mod3)
+```
+
+The standard errors for the coefficient of `NEU` is now considerably smaller, and the value of the coefficient is quite different from the model above. Still, the multiple $R^2$ is exactly equal to model `mod2`. The reason is that the coefficient of `NEU` now has a different meaning (expected difference in `CRP` corresponding to a difference in `NEU` of 1 G/L given constant concentrations of all other components of `WBC`). However, the coefficient of `WBCnoNEU` has the same meaning as in Model `mod2` (expected difference in `CRP` corresponding to a difference in `WBC` of 1 G/L given constant `NEU`), and hence its value and standard error in model `mod3` do not differ from those in `mod2`.
