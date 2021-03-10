@@ -13,7 +13,7 @@ library(kableExtra)
 library(splines)
 library(effects) 
 library(lmtest)
-
+library(rms)
 
 # Load data from R-package dslabs
 data(temp_carbon)
