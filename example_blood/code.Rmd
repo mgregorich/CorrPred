@@ -1,5 +1,5 @@
 ---
-title: "CRP-analysis"
+title: "Blood analysis example"
 author: "GH"
 date: "26 2 2021"
 output: word_document
