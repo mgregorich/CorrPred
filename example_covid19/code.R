@@ -8,10 +8,11 @@ library(tableone)
 library(rms)
 library(MASS)
 library(RColorBrewer)
+library(mctest)
 
 
 # Load data 
-load("data_covid19.RData")
+load("example_covid19/data_covid19.RData")
 
 
 # Data visualization
@@ -51,5 +52,7 @@ fit.res3 <- glm(severe~GGO+consolidation, family="binomial", data=data_covid)
 summary(fit.res3)
 vif(fit.res3)
 exp(cbind(coef(fit.res3), confint(fit.res3)))
-rcorr.cens(fit.res3$fitted.values,data_covidg$severe)[1]
+rcorr.cens(fit.res3$fitted.values,data_covid$severe)[1]
 
+# Condition indices and variance-decomposition proportions
+eigprop(fit.res3)
