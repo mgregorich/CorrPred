@@ -1,6 +1,6 @@
 ---
-title: "CRP-analysis"
-author: "GH, MG"
+title: "Blood analysis example"
+author: "GH"
 date: "26 2 2021"
 output: word_document
 ---
@@ -11,6 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, echo=FALSE, message=FALSE}
 library(regclass)  # if not available, install with install.packages("regclass")
+library(mctest)  # Condition index
+library(Hmisc)   # Redundancy analysis
 ```
 
 
@@ -70,6 +72,19 @@ Now we fit the model and evaluate the VIFs.
 mod2 <- lm(CRP ~ NEU + WBC)
 VIF(mod2)
 ```
+
+Further, we calculate the condition indices and the variance decomposition proportions
+
+```{r}
+ eigprop(mod2)
+```
+
+and perform redundancy analysis 
+```{r}
+redun(~ NEU + WBC)
+```
+
+
 Evaluate the model:
 
 ```{r}
@@ -99,6 +114,18 @@ mod3 <- lm(CRP ~ NEU + WBCnoNEU)
 VIF(mod3)
 
 ```
+
+Again, calculate the condition indices and the variance decomposition proportions. The condition number (largest condition index) is smaller than 10.
+
+```{r}
+ eigprop(mod3)
+```
+
+Redundancy analysis states no redundant variables:
+```{r}
+redun( ~ NEU + WBCnoNEU)
+```
+
 
 Evaluate the model:
 
