@@ -120,6 +120,6 @@ as.data.frame(eff.temp$year)
 as.data.frame(eff.temp$`ns(carbon_emissions,df=5)`)
 
 plot(allEffects(fit.final)[1], main="", xlab=c("Year"), ylab="Temperature anomaly [C]")
-plot(allEffects(fit.final)[2], main="", xlab=c("Carbon emissions [mil. of t]"), ylab="Temperature anomaly [C]")
+plot(allEffects(fit.final)[2], main="", xlab=c("Carbon emissions [Mt]"), ylab="Temperature anomaly [C]")
 
 
